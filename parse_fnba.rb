@@ -56,10 +56,8 @@ end # parseOpts()
 # Parse FNBA team from ESPN URL
 def parseTeam(url)
 
-	#local testing
-	#page = Nokogiri::HTML(open("projections_dan.html"))
-
-	#remote testing
+	# Open Team URL 
+	# TODO: Add error handling
 	page = Nokogiri::HTML(open(url))
 
 	# Get team table
@@ -68,48 +66,12 @@ def parseTeam(url)
 	# Get players as rows
 	rows = table.css("tr.pncPlayerRow")
 
-	@players = parsePlayers(rows)
-
-	# test parsing by outputting a players details
-	@players[1].each do |player|
-		puts player
-	end
-
-end # parseTeam()
-
-
-# Parse players from ESPN Player Table
-def parsePlayers(rows)
-
-	# Player Row Format
-	#
-	#<td id="slot_646" class="slot_0 playerSlot" style="font-weight: bold;">PG</td>
-	#<td class="playertablePlayerName" id="playername_646" style="">
-	#<a href="" class="flexpop" content="tabs#ppc" instance="_ppc" fpopheight="357px" fpopwidth="490px" tab="null" leagueid="23829" playerid="646" teamid="-2147483648" seasonid="2015" cache="true">Jeff Teague</a>, Atl PG</td>
-	#<td class="sectionLeadingSpacer"></td>
-	#<td class="cumulativeOpponents">2: <a href="http://sports.espn.go.com/nba/clubhouse?team=tor" target="_blank">@Tor</a>, <a href="http://sports.espn.go.com/nba/clubhouse?team=ind" target="_blank">Ind</a>
-	#</td>
-	#<td class="sectionLeadingSpacer"></td>
-	#<td class="playertableStat ">5.8/13.2</td>
-	#<td class="playertableStat ">.438</td>
-	#<td class="playertableStat ">4.0/4.8</td>
-	#<td class="playertableStat ">.846</td>
-	#<td class="playertableStat ">0.9</td>
-	#<td class="playertableStat ">2.6</td>
-	#<td class="playertableStat ">6.7</td>
-	#<td class="playertableStat ">1.1</td>
-	#<td class="playertableStat ">0.2</td>
-	#<td class="playertableStat ">2.9</td>
-	#<td class="playertableStat ">16.5</td>
-	#<td class="sectionLeadingSpacer"></td>
-	#<td class="playertableData">--</td>
-	#<td class="playertableData"><nobr>100.0</nobr></td>
-	#<td class="playertableData"><nobr>+0</nobr></td>
-
+	# Parse players from ESPN Player Table
 
 	@players = rows.collect do |row|
 		player = {}
 		[
+			[:playerid, 'td[2]/a/@playerid'],
 			[:slot, 'td[1]/text()'],
 			[:name, 'td[2]/a/text()'],
 			[:fgPercent, 'td[7]/text()'],
@@ -137,11 +99,11 @@ def parsePlayers(rows)
 		player
 	end
 
-	return @players
+	@players
 
-end #parsePlayers()
+end #parseTeam()
 
-pp ARGV.count
+
 
 # Parse command line options if supplied, otherwise print help
 if ARGV.count > 0
@@ -164,5 +126,12 @@ end
 
 puts "Parsing data for URL: #{url}\n"
 
-parseTeam(url)
+@team1 = parseTeam(url)
+
+#Print Team1
+@team1[1].each do |player|
+	puts player
+end
+
+
 
