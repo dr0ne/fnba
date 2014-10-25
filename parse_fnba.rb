@@ -112,9 +112,7 @@ def parsePlayers(rows)
 		[
 			[:slot, 'td[1]/text()'],
 			[:name, 'td[2]/a/text()'],
-			[:fgmfga, 'td[6]/text()'],
 			[:fgPercent, 'td[7]/text()'],
-			[:ftmfta, 'td[8]/text()'],
 			[:ftPercent, 'td[9]/text()'],
 			[:threePointers, 'td[10]/text()'],
 			[:rebounds, 'td[11]/text()'],
@@ -128,12 +126,13 @@ def parsePlayers(rows)
 			[:ownChange, 'td[20]/nobr/text()|td[20]/nobr/span/text()'],
 		].each do |name, xpath|
 			player[name] = row.at_xpath(xpath.to_s.strip)
-			#debug parsing
-			#puts name.to_s.chomp + " " + player[name]
 		end
 		
+		# Special parsing for complex fields
 		player[:team],*player[:position] = row.xpath('td[2]/text()'.to_s.strip).to_s.gsub('&nbsp;', ' ').delete(',').split(' ')
 		player[:opponents] = row.xpath('td[4]/*/text()'.to_s.strip)
+		player[:fgm],player[:fga] = row.xpath('td[6]/text()'.to_s.strip).to_s.split('/')
+		player[:ftm],player[:fta] = row.xpath('td[8]/text()'.to_s.strip).to_s.split('/')
 		
 		player
 	end
