@@ -2,9 +2,8 @@
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
-require 'pp' #pretty printer for testing
 require 'optparse'
-require 'ostruct'
+require 'pp'		#pp for debugging
 
 # Local test file
 test_file = "projections_dan.html"
@@ -87,14 +86,14 @@ def parseTeam(url)
 			[:ownPercent, 'td[19]/nobr/text()'],
 			[:ownChange, 'td[20]/nobr/text()|td[20]/nobr/span/text()'],
 		].each do |name, xpath|
-			player[name] = row.at_xpath(xpath.to_s.strip)
+			player[name] = row.at_xpath(xpath)
 		end
 		
 		# Special parsing for complex fields
-		player[:team],*player[:position] = row.xpath('td[2]/text()'.to_s.strip).to_s.gsub('&nbsp;', ' ').delete(',').split(' ')
-		player[:opponents] = row.xpath('td[4]/*/text()'.to_s.strip)
-		player[:fgm],player[:fga] = row.xpath('td[6]/text()'.to_s.strip).to_s.split('/')
-		player[:ftm],player[:fta] = row.xpath('td[8]/text()'.to_s.strip).to_s.split('/')
+		player[:team],*player[:position] = row.xpath('td[2]/text()').to_s.gsub('&nbsp;', ' ').delete(',').split(' ')
+		player[:opponents] = row.xpath('td[4]/*/text()')
+		player[:fgm],player[:fga] = row.xpath('td[6]/text()').to_s.split('/')
+		player[:ftm],player[:fta] = row.xpath('td[8]/text()').to_s.split('/')
 		
 		player
 	end
