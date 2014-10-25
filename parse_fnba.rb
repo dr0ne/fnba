@@ -70,9 +70,9 @@ def parseTeam(url)
 
 	@players = parsePlayers(rows)
 
-	# test parsing by outputting teams player names
-	@players.each do |player|
-		puts player[:name]
+	# test parsing by outputting a players details
+	@players[1].each do |player|
+		puts player
 	end
 
 end # parseTeam()
@@ -112,8 +112,6 @@ def parsePlayers(rows)
 		[
 			[:slot, 'td[1]/text()'],
 			[:name, 'td[2]/a/text()'],
-			[:teamPosition, 'td[2]/text()'],
-			[:opponents, 'td[4]/a/text()'],
 			[:fgmfga, 'td[6]/text()'],
 			[:fgPercent, 'td[7]/text()'],
 			[:ftmfta, 'td[8]/text()'],
@@ -133,6 +131,10 @@ def parsePlayers(rows)
 			#debug parsing
 			#puts name.to_s.chomp + " " + player[name]
 		end
+		
+		player[:team],*player[:position] = row.xpath('td[2]/text()'.to_s.strip).to_s.gsub('&nbsp;', ' ').delete(',').split(' ')
+		player[:opponents] = row.xpath('td[4]/*/text()'.to_s.strip)
+		
 		player
 	end
 
