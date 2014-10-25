@@ -1,24 +1,19 @@
-# predict.rb
+# parse_fnba.rb
 require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 require 'pp' #pretty printer for testing
 require 'optparse'
 require 'ostruct'
-#function parse lineup
 
+# Local test file
 test_file = "projections_dan.html"
 
-#remote testing
-#page = Nokogiri::HTML(open("http://games.espn.go.com/fba/clubhouse?leagueId=23829&teamId=14&seasonId=2015"))
-
-#url "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=23829&teamId=14&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=lastSeason&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false&r=39476976"
-
+# Parse command line options
 def parseOpts(args)
 
 	# Default options
-	options = {:verbose => false, :season => '2015'}
-
+	options = {:verbose => false, :season => '2015'} 
 
 	OptionParser.new do |opts|
 
@@ -48,9 +43,9 @@ def parseOpts(args)
 		end
 
 		# Display Help
-		opts.on('-h', '--help', 'Displays Help') do
+		opts.on_tail('-h', '--help', 'Displays Help') do
 			puts opts
-		exit
+		exit 0
 		end
 
 	end.parse!(args)
@@ -58,8 +53,7 @@ def parseOpts(args)
 
 end # parseOpts()
 
-# Parse team details given a URL
-
+# Parse FNBA team from ESPN URL
 def parseTeam(url)
 
 	#local testing
@@ -84,7 +78,7 @@ def parseTeam(url)
 end # parseTeam()
 
 
-
+# Parse players from ESPN Player Table
 def parsePlayers(rows)
 
 	# Player Row Format
@@ -137,7 +131,7 @@ def parsePlayers(rows)
 		].each do |name, xpath|
 			player[name] = row.at_xpath(xpath.to_s.strip)
 			#debug parsing
-				#puts name.to_s.chomp + " " + player[name]
+			#puts name.to_s.chomp + " " + player[name]
 		end
 		player
 	end
@@ -146,26 +140,28 @@ def parsePlayers(rows)
 
 end #parsePlayers()
 
-options = parseOpts(ARGV)
+pp ARGV.count
 
+# Parse command line options if supplied, otherwise print help
+if ARGV.count > 0
+	options = parseOpts(ARGV)
+else
+	ARGV << "--help"
+	parseOpts(ARGV)
+	exit 0
+end
+
+# If a league and team is supplied, use a specific URL, if test supplied, use local test URL
 if options[:league] && options[:team]
 	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=lastSeason&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 elsif options[:test]
 	url = "#{test_file}"
 else
-	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=23829&teamId=14&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=lastSeason&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+	puts "Something went wrong!\n"
+	exit 0
 end
 
-puts "URL: #{url}\n"
+puts "Parsing data for URL: #{url}\n"
+
 parseTeam(url)
-
-#pp options[:league]
-#pp options[:team]
-
-#pp options
-#pp ARGV
-
-
-
-
 
