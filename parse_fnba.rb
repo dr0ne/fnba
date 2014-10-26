@@ -121,18 +121,41 @@ def printTeam(team)
 
 	# Iterate through players
 	team.each do |player|
-		player.each do |stat|
-			puts stat
-		end
+		player.each {|key,value| puts "#{key},#{value}"}
 	end
 
 end #printTeam()
 
 
-def compareTeams(team1,team2)
+def compareTeams(team)
 
+# Fields
+#playerid,1001
+#slot,Bench
+#name,Miles Plumlee
+#fgPercent,.513
+#ftPercent,.568
+#threePointers,0.0
+#rebounds,8.7
+#assists,0.6
+#steals,0.7
+#blocks,1.2
+#turnovers,1.5
+#points,8.9
+#pr15,--
+#ownPercent,6.4
+#ownChange,+2
+#team,Pho
+#position,["PF", "C"]
+#opponents,LALSA@Uta
+#fgm,3.9
+#fga,7.7
+#ftm,1.0
+#fta,1.8
 
-
+team.each do |player|
+	player.each {|key,value| puts "#{key},#{value}"}
+end
 
 
 
@@ -181,10 +204,10 @@ puts "Parsing data for URL: #{url}\n"
 if options[:team][1]
 	@team1 = parseTeam(url,options[:verbose])
 	@team2 = parseTeam(url2,options[:verbose])
-	#compareTeams
+	compareTeams(@team1,@team2)
 	#debug printing
-	printTeam(@team1)
-	printTeam(@team2)
+	#printTeam(@team1)
+	#printTeam(@team2)
 else
 	@team1 = parseTeam(url,options[:verbose])
 	printTeam(@team1)
