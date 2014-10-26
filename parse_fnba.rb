@@ -122,41 +122,99 @@ def printTeam(team)
 end #printTeam()
 
 
-def compareTeams(teams)
+#
+# calcTotals(teams) - Tally up matchup totals for each team
+#
+def calcTotals(teams)
 
-# Fields
-#playerid,1001
-#slot,Bench
-#name,Miles Plumlee
-#fgPercent,.513
-#ftPercent,.568
-#threePointers,0.0
-#rebounds,8.7
-#assists,0.6
-#steals,0.7
-#blocks,1.2
-#turnovers,1.5
-#points,8.9
-#pr15,--
-#ownPercent,6.4
-#ownChange,+2
-#team,Pho
-#position,["PF", "C"]
-#opponents,LALSA@Uta
-#fgm,3.9
-#fga,7.7
-#ftm,1.0
-#fta,1.8
+teamTotals = Array.new
 
-teams.each do |player|
-	player.each {|key,value| puts "#{key},#{value}"}
+@teamTotals = teams.collect do |team|
+	# Initialise totals hash
+	totals = {}
+	[
+		[:fgPercent, 0.0],
+		[:ftPercent, 0.0],
+		[:threePointers, 0.0],
+		[:rebounds, 0.0],
+		[:assists, 0.0],
+		[:steals, 0.0],
+		[:blocks, 0.0],
+		[:turnovers, 0.0],
+		[:points, 0.0],
+		[:fgm, 0.0],
+		[:fga, 0.0],
+		[:ftm, 0.0],
+		[:fta, 0.0],
+	].each do |key,value|
+		totals[key] = value
+	end
+
+	team.each do |player|
+		# Ignore benched players
+		if player[:slot] != "Bench"
+			# Multiply by number of games player has
+			games = player[:opponents].count
+			# Sum adding statistics
+			totals[:threePointers] += player[:threePointers].to_f * games
+			totals[:rebounds] += player[:rebounds].to_f * games
+			totals[:assists] += player[:assists].to_f * games
+			totals[:steals] += player[:steals].to_f * games
+			totals[:blocks] += player[:blocks].to_f * games
+			totals[:turnovers] += player[:turnovers].to_f * games
+			totals[:points] += player[:points].to_f * games
+			totals[:fgm] += player[:fgm].to_f * games
+			totals[:fga] += player[:fga].to_f * games
+			totals[:ftm] += player[:ftm].to_f * games
+			totals[:fta] += player[:fta].to_f * games
+		end
+	end
+#Calculate Averages
+totals[:fgPercent] = totals[:fgm] / totals[:fga]
+totals[:ftPercent] = totals[:ftm] / totals[:fta]
+
+totals
 end
 
+@teamTotals
 
+end #calcTotals()
 
+#
+#	compareTeams(teamTotals) - Compare teams for a given matchup
+#
+
+def compareTeams(teamTotals)
+
+	#TODO: Store team name and details for printing
+
+	pp teamTotals
+
+	#teamTotals[0].each do |stat,value|
+	
+	#if stat == "turnovers"
+	#	if 
+		
+
+	#end
 
 end #compareTeams()
 
+#
+# Methods to colorize text at the command line
+#
+
+def colorize(text, color_code)
+  "\e[#{color_code}m#{text}\e[0m"
+end
+
+def red(text); colorize(text, 31); end
+def green(text); colorize(text, 32); end
+
+
+#
+#	Begin Main
+#
 
 # Parse command line options if supplied, otherwise print help
 if ARGV.count > 0
@@ -182,4 +240,9 @@ options[:team].each do |teamId|
 	teams << parseTeam(url,options[:verbose])
 	
 end
+
+teamTotals = calcTotals(teams)
+
+compareTeams(teamTotals)
+
 
