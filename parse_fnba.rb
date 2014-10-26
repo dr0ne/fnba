@@ -5,8 +5,11 @@ require 'open-uri'
 require 'optparse'
 require 'pp'		#pp for debugging
 
-# Local test file
-test_file = "projections_dan.html"
+# Test URLs
+test_local_weekly = "projections_weekly.html"
+test_local_daily = "projections_daily.html"
+test_remote_weekly = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=23829&teamId=14&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+test_remote_daily = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=40207&teamId=12&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 
 # Parse command line options
 def parseOpts(args)
@@ -30,15 +33,19 @@ def parseOpts(args)
 			options[:league] = league
 		end
 
-
 		# Get Team ID
 		opts.on("-t", "--team TEAM_ID", "ESPN Team ID") do |team|
 			options[:team] = team
 		end
 
-		# Enable Test Mode
-		opts.on("--test", "Test Mode") do |test|
-			options[:test] = test
+		# Enable Local Test Mode
+		opts.on("--test [local,remote]", "Use local test file") do |test|
+			options[:test] = test || "local"
+		end
+
+		# Choose format
+		opts.on("--format [daily,weekly]", "Use local test file") do |format|
+			options[:format] = format || "weekly"
 		end
 
 		# Display Help
@@ -99,10 +106,9 @@ def parseTeam(url,verbose)
 		player[:team],*player[:position] = row.xpath('td[2]/text()').to_s.gsub('&nbsp;', ' ').delete(',').split(' ')
 		# TODO: Improve opponent parsing to work for weekly and daily leagues
 		player[:opponents] = row.xpath('td[4]/*/text()')
-		
+
 		player[:fgm],player[:fga] = row.xpath('td[@class="playertableStat "][1]').text.to_s.split('/')
-		player[:ftm],player[:fta] = row.xpath('td[@class="playertableStat "][3]').text.to_s.split('/')
-		player[:fgtest] = row.xpath('td[@class="playertableData"][3]').text		
+		player[:ftm],player[:fta] = row.xpath('td[@class="playertableStat "][3]').text.to_s.split('/')	
 		player
 	end
 
@@ -125,7 +131,20 @@ end
 if options[:league] && options[:team]
 	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 elsif options[:test]
-	url = "#{test_file}"
+	# Select test URL
+	if options[:test] == "local"
+		if options[:format] == "daily"
+			url = "#{test_local_daily}"
+		else 
+			url = "#{test_local_weekly}"
+		end
+	else
+		if options[:format] == "daily"
+			url = "#{test_remote_daily}"
+		else 
+			url = "#{test_remote_weekly}"
+		end
+	end
 else
 	puts "Something went wrong!\n"
 	exit 0
