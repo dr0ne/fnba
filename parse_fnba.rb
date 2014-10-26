@@ -3,13 +3,8 @@ require 'rubygems'
 require 'nokogiri'
 require 'open-uri'
 require 'optparse'
-require 'pp'		#pp for debugging
+require 'pp'		
 
-# Test URLs
-test_local_weekly = "projections_weekly.html"
-test_local_daily = "projections_daily.html"
-test_remote_weekly = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=23829&teamId=14&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
-test_remote_daily = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=40207&teamId=12&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 
 # Parse command line options
 def parseOpts(args)
@@ -34,18 +29,18 @@ def parseOpts(args)
 		end
 
 		# Get Team ID
-		opts.on("-t", "--team TEAM_ID,[TEAM2_ID]", Array,"ESPN Team ID(s)") do |team|
+		opts.on("-t", "--team TEAM_ID,[TEAM2_ID, ...]", Array,"ESPN Team ID(s)") do |team|
 			options[:team] = team
 		end
 
-		# Enable Local Test Mode
-		opts.on("--test [local,remote]", "Use local test file") do |test|
-			options[:test] = test || "local"
+		# Use defaults for testing
+		opts.on("--test", "Use default test values (league = 23829, team = 12,14)") do |test|
+			options[:test] = test
 		end
 
-		# Choose format
-		opts.on("--format [daily,weekly]", "Use local test file") do |format|
-			options[:format] = format || "weekly"
+		# Cache content, use cached version if available
+		opts.on("-c","--cache", "Use cached content if available") do |format|
+			options[:cache] = cache
 		end
 
 		# Display Help
@@ -127,7 +122,7 @@ def printTeam(team)
 end #printTeam()
 
 
-def compareTeams(team)
+def compareTeams(teams)
 
 # Fields
 #playerid,1001
@@ -153,7 +148,7 @@ def compareTeams(team)
 #ftm,1.0
 #fta,1.8
 
-team.each do |player|
+teams.each do |player|
 	player.each {|key,value| puts "#{key},#{value}"}
 end
 
@@ -172,45 +167,19 @@ else
 	exit 0
 end
 
-# If a league and team is supplied, use a specific URL, if test supplied, use local test URL
-if options[:league] && options[:team][0]
-	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team][0]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
-	if options[:team][1]
-		url2 = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team][1]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
-	end
-elsif options[:test]
-	# Select test URL
-	if options[:test] == "local"
-		if options[:format] == "daily"
-			url = "#{test_local_daily}"
-		else 
-			url = "#{test_local_weekly}"
-		end
-	else
-		if options[:format] == "daily"
-			url = "#{test_remote_daily}"
-		else 
-			url = "#{test_remote_weekly}"
-		end
-	end
-else
-	puts "Something went wrong!\n"
+# Process X number of teams
+
+if !options[:league]
+	puts "\nMust supply LEAGUE_ID!\n\n"
 	exit 0
 end
 
-puts "Parsing data for URL: #{url}\n"
+teams = Array.new
 
-# Handle one or two teams
-if options[:team][1]
-	@team1 = parseTeam(url,options[:verbose])
-	@team2 = parseTeam(url2,options[:verbose])
-	compareTeams(@team1,@team2)
-	#debug printing
-	#printTeam(@team1)
-	#printTeam(@team2)
-else
-	@team1 = parseTeam(url,options[:verbose])
-	printTeam(@team1)
-	#showTeam
+options[:team].each do |teamId|
+
+	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+	teams << parseTeam(url,options[:verbose])
+	
 end
 
