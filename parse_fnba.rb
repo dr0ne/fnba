@@ -34,7 +34,7 @@ def parseOpts(args)
 		end
 
 		# Get Team ID
-		opts.on("-t", "--team TEAM_ID", "ESPN Team ID") do |team|
+		opts.on("-t", "--team TEAM_ID,[TEAM2_ID]", Array,"ESPN Team ID(s)") do |team|
 			options[:team] = team
 		end
 
@@ -116,6 +116,28 @@ def parseTeam(url,verbose)
 
 end #parseTeam()
 
+# Prints data for a given team
+def printTeam(team)
+
+	# Iterate through players
+	team.each do |player|
+		player.each do |stat|
+			puts stat
+		end
+	end
+
+end #printTeam()
+
+
+def compareTeams(team1,team2)
+
+
+
+
+
+
+
+end #compareTeams()
 
 
 # Parse command line options if supplied, otherwise print help
@@ -128,8 +150,11 @@ else
 end
 
 # If a league and team is supplied, use a specific URL, if test supplied, use local test URL
-if options[:league] && options[:team]
-	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+if options[:league] && options[:team][0]
+	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team][0]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+	if options[:team][1]
+		url2 = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{options[:team][1]}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+	end
 elsif options[:test]
 	# Select test URL
 	if options[:test] == "local"
@@ -152,12 +177,17 @@ end
 
 puts "Parsing data for URL: #{url}\n"
 
-@team1 = parseTeam(url,options[:verbose])
-
-#Print Team1
-@team1[1].each do |player|
-	puts player
+# Handle one or two teams
+if options[:team][1]
+	@team1 = parseTeam(url,options[:verbose])
+	@team2 = parseTeam(url2,options[:verbose])
+	#compareTeams
+	#debug printing
+	printTeam(@team1)
+	printTeam(@team2)
+else
+	@team1 = parseTeam(url,options[:verbose])
+	printTeam(@team1)
+	#showTeam
 end
-
-
 
