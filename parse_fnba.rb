@@ -129,6 +129,9 @@ def calcTotals(teams)
 
 teamTotals = Array.new
 
+# TODO: Remove this flag for daily league hack
+daily = 0
+
 @teamTotals = teams.collect do |team|
 	# Initialise totals hash
 	totals = {}
@@ -152,9 +155,16 @@ teamTotals = Array.new
 
 	team.each do |player|
 		# Ignore benched players
-		if player[:slot] != "Bench"
+		if player[:slot] != "Bench" || daily
 			# Multiply by number of games player has
 			games = player[:opponents].count
+
+			# TODO: Remove this hack for daily leagues, assume everyone has 1 game
+			if games == 0
+				games = 1
+				daily = 1
+			end
+
 			# Sum adding statistics
 			totals[:threePointers] += player[:threePointers].to_f * games
 			totals[:rebounds] += player[:rebounds].to_f * games
@@ -238,11 +248,9 @@ options[:team].each do |teamId|
 
 	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 	teams << parseTeam(url,options[:verbose])
-	
 end
 
 teamTotals = calcTotals(teams)
 
 compareTeams(teamTotals)
-
 
