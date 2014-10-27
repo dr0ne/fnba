@@ -165,7 +165,7 @@ daily = 0
 				daily = 1
 			end
 
-			# Sum adding statistics
+			# Sum counting stats
 			totals[:threePointers] += player[:threePointers].to_f * games
 			totals[:rebounds] += player[:rebounds].to_f * games
 			totals[:assists] += player[:assists].to_f * games
@@ -196,17 +196,43 @@ end #calcTotals()
 
 def compareTeams(teamTotals)
 
-	#TODO: Store team name and details for printing
+	#TODO: Store team name and details for printing - also allow custom categories
+	team1 = 0
+	team2 = 0
+	header = "Stat"
 
-	pp teamTotals
-
-	#teamTotals[0].each do |stat,value|
 	
-	#if stat == "turnovers"
-	#	if 
-		
 
-	#end
+	printf("%-20s",header)
+	puts "Team 1\tTeam 2\n"
+	
+	teamTotals[0].each do |stat,value|
+		
+		# TODO: fix this - Skip unused categories for now
+		if stat.to_s != 'fgm' && stat.to_s != 'fga' && stat.to_s != 'ftm' && stat.to_s != 'fta'
+		
+			# Print row name
+			printf("%-20s",stat)
+	
+			if teamTotals[0][stat] > teamTotals[1][stat] || (stat.to_s == 'turnovers' && teamTotals[0][stat] < teamTotals[1][stat])
+				#Team 1 wins
+				puts green(teamTotals[0][stat].round(3)) + "\t" + red(teamTotals[1][stat].round(3)) + "\n"
+				team1 += 1
+			else
+				#Team 2 wins
+				puts red(teamTotals[0][stat].round(3)) + "\t" + green(teamTotals[1][stat].round(3)) + "\n"
+				team2 += 1
+			end
+		end
+	end
+
+	if(team1 > team2)
+		puts green("\nTeam 1 wins with #{team1} of #{team1 + team2} categories\n") 
+	elsif(team2 > team1)
+		puts green("\nTeam 2 wins with #{team2} of #{team1 + team2} categories\n") 
+	else
+		puts green("\nDraw!\n")
+	end
 
 end #compareTeams()
 
