@@ -155,7 +155,7 @@ daily = 0
 
 	team.each do |player|
 		# Ignore benched players
-		if player[:slot] != "Bench" || daily
+		if player[:slot] != "Bench" || daily == 1
 			# Multiply by number of games player has
 			games = player[:opponents].count
 
