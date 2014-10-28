@@ -61,7 +61,9 @@ def parseOpts(args)
 end # parseOpts()
 
 # Parse FNBA team from ESPN URL
-def parseTeam(url,verbose)
+def parseTeam(leagueId,teamId,period,verbose)
+
+	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{leagueId}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=#{period}&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 
 	# Open Team URL 
 	# TODO: Add error handling
@@ -105,6 +107,7 @@ def parseTeam(url,verbose)
 		
 		# Special parsing for complex fields
 		player[:team],*player[:position] = row.xpath('td[2]/text()').to_s.gsub('&nbsp;', ' ').delete(',').split(' ')
+		
 		# TODO: Improve opponent parsing to work for weekly and daily leagues
 		player[:opponents] = row.xpath('td[4]/*/text()')
 
@@ -277,9 +280,7 @@ end
 teams = Array.new
 
 options[:team].each do |teamId|
-
-	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=#{options[:period]}&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
-	teams << parseTeam(url,options[:verbose])
+		teams << parseTeam(options[:league],teamId,options[:period],options[:verbose])
 end
 
 teamTotals = calcTotals(teams)
