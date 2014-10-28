@@ -10,11 +10,11 @@ require 'pp'
 def parseOpts(args)
 
 	# Default options
-	options = {:verbose => false, :season => '2015'} 
+	options = {:verbose => false, :season => '2015', :period => '1'} 
 
 	OptionParser.new do |opts|
 
-		opts.banner = "Usage: predict.rb [options]"
+		opts.banner = "Usage: fnba.rb [options]"
 
 		opts.separator ""
 		opts.separator "Specific options:"
@@ -31,6 +31,12 @@ def parseOpts(args)
 		# Get Team ID
 		opts.on("-t", "--team TEAM_ID,[TEAM2_ID, ...]", Array,"ESPN Team ID(s)") do |team|
 			options[:team] = team
+		end
+
+		# Scoring Period
+		opts.on("-p", "--period SCORING_PERIOD", Integer, "ESPN Scoring Period (Week)") do |period|
+			# Convert period from days to weeks
+			options[:period] = period * 7
 		end
 
 		# Use defaults for testing
@@ -272,7 +278,7 @@ teams = Array.new
 
 options[:team].each do |teamId|
 
-	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=1&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{options[:league]}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=#{options[:period]}&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 	teams << parseTeam(url,options[:verbose])
 end
 
