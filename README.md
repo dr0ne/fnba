@@ -4,7 +4,7 @@ fnba
 Fantasy NBA Tools
 
 ##Dependencies
-`gem install nokogiri`
+`bundle install`
 
 ##Usage
 ```
