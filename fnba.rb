@@ -36,7 +36,7 @@ def parseOpts(args)
 		# Scoring Period
 		opts.on("-p", "--period SCORING_PERIOD", Integer, "ESPN Scoring Period (Week)") do |period|
 			# Convert period from days to weeks
-			options[:period] = period * 7
+			options[:period] = period * 7 - 6
 		end
 
 		# Use defaults for testing
