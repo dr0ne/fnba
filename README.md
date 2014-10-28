@@ -8,7 +8,7 @@ Fantasy NBA Tools
 
 ##Usage
 ```
-Usage: predict.rb [options]
+Usage: fnba.rb [options]
 
 Specific options:
     -v, --[no-]verbose               Run verbosely
@@ -20,5 +20,5 @@ Specific options:
     -h, --help                       Displays Help
 ```
 
-Example: `ruby parse_fnba.rb -l 23829 -t 14,13`
+Example: `ruby fnba.rb -l 23829 -t 14,13`
 
