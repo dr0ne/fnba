@@ -10,7 +10,7 @@ require 'pp'
 def parseOpts(args)
 
 	# Default options
-	options = {:verbose => false, :season => '2015', :period => '1'} 
+	options = {:verbose => false, :season => '2015', :period => '1',:stats => 'last30'} 
 
 	OptionParser.new do |opts|
 
@@ -39,6 +39,11 @@ def parseOpts(args)
 			options[:period] = period * 7 - 6
 		end
 
+		# Stats to use
+		opts.on("-s","--stats STAT_TYPE","Statistics source to use, default last30") do |stats|
+			options[:stats] = stat
+		end
+
 		# Use defaults for testing
 		opts.on("--test", "Use default test values (league = 23829, team = 12,14)") do |test|
 			options[:test] = test
@@ -61,9 +66,9 @@ def parseOpts(args)
 end # parseOpts()
 
 # Parse FNBA team from ESPN URL
-def parseTeam(leagueId,teamId,period,verbose)
+def parseTeam(leagueId,teamId,period,stats,verbose)
 
-	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{leagueId}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=#{period}&view=stats&context=clubhouse&version=projections&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
+	url = "http://games.espn.go.com/fba/playertable/prebuilt/manageroster?leagueId=#{leagueId}&teamId=#{teamId}&seasonId=2015&scoringPeriodId=#{period}&view=stats&context=clubhouse&version=#{stats}&ajaxPath=playertable/prebuilt/manageroster&managingIr=false&droppingPlayers=false&asLM=false"
 
 	# Open Team URL 
 	# TODO: Add error handling
@@ -280,7 +285,7 @@ end
 teams = Array.new
 
 options[:team].each do |teamId|
-		teams << parseTeam(options[:league],teamId,options[:period],options[:verbose])
+		teams << parseTeam(options[:league],teamId,options[:period],options[:stats],options[:verbose])
 end
 
 teamTotals = calcTotals(teams)
