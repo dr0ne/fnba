@@ -41,7 +41,7 @@ def parseOpts(args)
 
 		# Stats to use
 		opts.on("-s","--stats STAT_TYPE","Statistics source to use, default last30") do |stats|
-			options[:stats] = stat
+			options[:stats] = stats
 		end
 
 		# Use defaults for testing
